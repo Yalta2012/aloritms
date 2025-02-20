@@ -4,6 +4,7 @@
 #include <chrono>
 #include <fstream>
 
+#define long long int size_tд
 template <typename T>
 void IncreasingSequence(T *array, size_t len, T min, T max)
 {
@@ -16,11 +17,13 @@ void IncreasingSequence(T *array, size_t len, T min, T max)
         max = temp;
     }
 
-    double step = (max - min) / len;
-    array[0] = min;
+    double step = 1.0*(max - min) / len;
+    array[0] = (T)min;
+    double prev = (T)min;
     for (size_t i = 1; i < len; i++)
     {
-        array[i] = array[i - 1] + step;
+        array[i] = prev + step;
+        prev += step;
     }
 }
 
@@ -35,11 +38,15 @@ void DecreasingSequence(T *array, size_t len, T min, T max)
         min = max;
         max = temp;
     }
-    double step = -(max - min) / len;
+    double step = 1.0*(max - min) / len;
     array[0] = max;
+    double prev = (T)min;
+
     for (size_t i = 1; i < len; i++)
     {
-        array[i] = array[i - 1] + step;
+        array[i] = prev + step;
+        prev += step;
+
     }
 }
 
@@ -64,7 +71,7 @@ void RandomSequence(T *array, size_t len, T min, T max)
 }
 
 template <typename T>
-void SawtoothSequence(T *array, size_t len, T start, T end, size_t period, size_t offset = 0)
+void SawtoothSequence(T *array, size_t len, T start, T end, size_t period, size_t offset)
 {
     if (nullptr == array || 0 == len)
         return;
@@ -82,12 +89,12 @@ void SinSequence(T *array, size_t len, T start, T end, double period = 2 * M_2_P
         return;
     for (size_t i = 0; i < len; i++)
     {
-        array[i] = sin(i * M_2_PI / period + offset) * (end - start) / 2 + (end + start) / 2;
+        array[i] = sin(i * M_2_PI *len / period/ period + offset) * (end - start) / 2 + (end + start) / 2;
     }
 }
 
 template <typename T>
-void StepSequence(T *array, size_t len, T start, T end, size_t period)
+void StepSequence(T *array, size_t len, T start, T end, size_t period=10)
 {
     if (nullptr == array || 0 == len || 0 == period || len < period)
         return;
@@ -114,37 +121,78 @@ void QuasiOrderedSequence(T *array, size_t len, T start, T end, T spread)
     double direct = start;
     for (size_t i = 0; i < len; i++, direct += step)
     {
+        direct = start + 1.0*i*(end-start)/len;
         double up_limit = max > direct + spread ? direct + spread : max;
-        double low_lomit = min < direct - spread ? direct - spread : min;
-        std::uniform_real_distribution distribution(low_lomit, up_limit);
+        double low_limit = min < direct - spread ? direct - spread : min;
+        std::uniform_real_distribution distribution(low_limit, up_limit);
         double ran = distribution(generator);
         array[i] = ran;
     }
 }
+
+template <typename T>
+void SawtoothSequence(T *array, size_t len, T start, T end){
+    SawtoothSequence(array, len,start, end, 10, 0);
+}
+
+template <typename T>
+void SinSequence(T *array, size_t len, T start, T end){
+    SinSequence<T>(array, len,start,end, 10 * M_2_PI, 0);
+}
+
+template <typename T>
+void StepSequence(T *array, size_t len, T start, T end){
+    StepSequence<T>(array, len, start, end,10);
+}
+
+template <typename T>
+void QuasiOrderedSequence(T *array, size_t len, T start, T end){
+    QuasiOrderedSequence<T>(array, len, start, end, 10);
+}
+
 using namespace std;
 using namespace std::chrono;
 
-void (*funarrint[])(int*,size_t, int, int ) = {IncreasingSequence};
+void (*funarrint[])(int*,size_t, int, int ) = {IncreasingSequence, DecreasingSequence, RandomSequence, SawtoothSequence, SinSequence,StepSequence,QuasiOrderedSequence};
+void (*funarrdouble[])(double*,size_t, double, double ) = {IncreasingSequence, DecreasingSequence, RandomSequence, SawtoothSequence, SinSequence,StepSequence,QuasiOrderedSequence};
+
+string funnames[]{"IncreasingSequence", "DecreasingSequence", "RandomSequence", "SawtoothSequence", "SinSequence","StepSequence","QuasiOrderedSequence"};
+
 int main()
 {
     ofstream outstream("out.txt");
-    outstream << "<type> Alg size\n";
+    outstream << "<type> | Alg | size | time (mics)\n";
     auto begin = steady_clock::now();
     auto end = steady_clock::now();
-    for (int i = 5; i <= 50; i += 5)
-    {
-        int *array = (int *)malloc(sizeof(int) * i * pow(10, 5));
-       
+    for (int i = 0; i<7; i++){
+        for (int j = 5; j<=50; j+=5){
+            
+            int *iarray = (int *)malloc(sizeof(int) * j * pow(10, 5));
+            begin = steady_clock::now();
+            funarrint[i](iarray,(size_t)(j*pow(10,5)),-100,100);
+            end = steady_clock::now();
+            outstream << "<int> " << funnames[i]<< " " << j <<"*10^5" << " " << duration_cast<microseconds>(end-begin).count()<<endl; 
+            free (iarray);
 
-        begin = steady_clock::now();
-        IncreasingSequence(array, i * pow(10, 5), INT16_MIN, INT16_MAX);
-        end = steady_clock::now();
-        cout<<"<int> ";
-        std::cout << "Elapsed microseconds: "
-                  << duration_cast<microseconds>(end - begin).count()
-                  << "us\n";
+            double *darray = (double *)malloc(sizeof(double) * j * pow(10, 5));
+            begin = steady_clock::now();
+            funarrdouble[i](darray,(size_t)(j*pow(10,5)),-100,100);
+            end = steady_clock::now();
+            outstream << "<double> " << funnames[i]<< " " << j <<"*10^5" << " " << duration_cast<microseconds>(end-begin).count()<<endl; 
+
+            free (darray);
+            // cout<<i<< " " << j <<endl;
+        }
     }
-
     outstream.close();
+
+    // ofstream o("SinSequence.txt");
+    // size_t size = 10000;
+    // int a[size];
+    // SinSequence(a, size,0, 100, 1000);
+    // for (int i = 0; i<size; i++){
+    //     o<<a[i]<<endl;
+    // }
+
     return 0;
 }
