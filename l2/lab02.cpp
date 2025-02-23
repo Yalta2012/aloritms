@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include "arrgen.h"
 #include <cstdio>
+#include <concepts>
 
 template <typename T>
 bool IsSorted(int (*Compare)(T, T), T *array, size_t n)
@@ -26,6 +27,7 @@ void PrintArray(T *array, size_t n)
 
     std::cout << std::endl;
 }
+
 /**
  * h(i) = 3*h(i-1)-1
  */
@@ -33,55 +35,111 @@ template <typename T>
 size_t ShellSort(int (*Compare)(T, T), T *array, size_t n)
 {
     size_t CompTimes = 0;
-    size_t StepSizeN = n;
-    size_t *StepSize = (size_t *)malloc(StepSizeN * sizeof(size_t));
-    StepSize[0] = 1;
-    for (size_t i = 1; i < StepSizeN; i++)
+    size_t h;
+    for (h = 1; h <= n / 9; h = 3 * h + 1)
+        ;
+    for (; h > 0; h /= 3)
     {
-        StepSize[i] = 3 * StepSize[i - 1] - 1;
-    }
-
-    for (size_t i = StepSizeN - 1; ;i--)
-    {
-
-        size_t h = StepSize[i];
-        //std::cout<<"("<<h<<")"<<std::endl;
-        printf("H: %ld\n",h);
-        for (size_t j = 0; j + h < StepSizeN; j++)
+        for (size_t i = h; i < n; i++)
         {
-            printf("(%ld %ld)[%d %d]",j,j+h,array[j],array[j+h]);
-            CompTimes++;
-            if (Compare(array[j], array[j + h])<0)
+            T temp = array[i];
+            size_t j = i;
+            for (; j >= h && array[j - h] > temp; j -= h)
             {
-                printf("SWITCH\n");
-                T temp = array[j];
-                array[j] = array[j + h];
-                array[j + h] = temp;
-                PrintArray(array,n);
+                CompTimes++;
+                array[j] = array[j - h];
             }
-            printf("\n");
+            array[j] = temp;
+            CompTimes++;
         }
-        if(i == 0) break;
     }
-    free(StepSize);
+
     return CompTimes;
 }
-// template <typename T>
-// size_t CountingSort(bool(*Compare), , T *array, size_t n);
+
+void PrintBin(int *array, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+    {
+
+        for (int j = sizeof(int) * 8 - 1; j >= 0; j--)
+            std::cout << ((array[i] & (1 << j)) ? 1 : 0);
+        std::cout << " ";
+    }
+
+    std::cout << std::endl;
+}
+void PrintBin(unsigned int *array, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+    {
+
+        for (int j = sizeof(unsigned int) * 8 - 1; j >= 0; j--)
+            std::cout << ((array[i] & (1 << j)) ? 1 : 0);
+        std::cout << " ";
+    }
+
+    std::cout << std::endl;
+}
+
+void RadixSortLSD1(unsigned *array, size_t n, int power)
+{
+    if (power < 0)
+        return;
+    int bits = 1 << power;
+    int counter_size = (1 << bits) + 1;
+
+    unsigned int counter[counter_size];
+    unsigned int mask;
+    int *buf_array = (int *)malloc(n * sizeof(int));
+    int hight;
+    int max_hight = sizeof(int) * 8 / bits - 1;
+    for (int i = 0; i < n; i++)
+        mask |= array[i];
+
+    for (hight = max_hight; hight >= 0; hight--)
+        if (mask & ((counter_size - 2) << (hight * bits)))
+            break;
+    for (unsigned int b = 0; b <= hight; b++)
+    {
+        mask = (counter_size - 2) << (b*bits);
+        for (int i = 0; i < counter_size; i++)
+            counter[i] = 0;
+
+        for (int i = 0; i < n; i++)
+            counter[((array[i] & mask) >> (b * bits)) + 1]++;
+
+        for (int i = 1; i < counter_size; i++)
+            counter[i] += counter[i - 1];
+
+        for (int i = 0; i < n; i++)
+            buf_array[counter[((array[i] & mask) >> (b * bits))]++] = array[i];
+
+        for (int i = 0; i < n; i++)
+            array[i] = buf_array[i];
+    }
+
+    free(buf_array);
+}
 
 
 template <typename T>
-size_t SelectionSort(int(*Compare)(T, T), T *array, size_t n){
-    size_t CompTimes = 0;  
-    for(size_t i = 0; i<n-1; i++){
+size_t SelectionSort(int (*Compare)(T, T), T *array, size_t n)
+{
+    size_t CompTimes = 0;
+    for (size_t i = 0; i < n - 1; i++)
+    {
         size_t min_index = i;
-        for (size_t j = i+1; j<n; j++){
+        for (size_t j = i + 1; j < n; j++)
+        {
             CompTimes++;
-            if(Compare(array[min_index],array[j])<0){
+            if (Compare(array[min_index], array[j]) < 0)
+            {
                 min_index = j;
             }
         }
-        if (min_index != i){
+        if (min_index != i)
+        {
             T temp = array[i];
             array[i] = array[min_index];
             array[min_index] = temp;
@@ -94,19 +152,51 @@ int CompFunc(int a, int b)
 {
     return b - a;
 }
+int CompFunc(char a, char b)
+{
+    return b - a;
+}
+int CompFunc(size_t a, size_t b)
+{
+    if (a > b)
+        return -1;
+    if (a == b)
+        return 0;
+    return 1;
+}
+int CompFunc(unsigned int a, unsigned int b)
+{
+    if (a > b)
+        return -1;
+    if (a == b)
+        return 0;
+    return 1;
+}
+int CompFunc(double a, double b)
+{
+    if (a > b)
+        return -1;
+    if (a == b)
+        return 0;
+    return 1;
+}
 
 using namespace std;
 
 int main()
+
 {
-    int len = 10;
-    int a[len];
-    ArrGen::RandomSequence<int>(a, len, 0, 10);
+    size_t len = 6;
+    unsigned int a[len];
+    // ArrGen::RandomSequence<char>(a, len, 0, 10);
+    ArrGen::RandomSequence<unsigned int>(a, len, 0, 21412412);
     cout << "Generation Done" << endl;
     PrintArray(a, len);
-    cout << "Comparations: " << SelectionSort<int>(CompFunc, a, len) << endl;
+    PrintBin(a, len);
+    RadixSortLSD1(a, len, 2);
     PrintArray(a, len);
-    if (IsSorted<int>(CompFunc, a, len))
+    PrintBin(a, len);
+    if (IsSorted<unsigned int>(CompFunc, a, len))
     {
         cout << "DONE" << endl;
     }
@@ -114,5 +204,6 @@ int main()
     {
         cout << "FAIL" << endl;
     }
-
 }
+
+#include "arrgen.cpp"

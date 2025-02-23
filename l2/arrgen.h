@@ -14,7 +14,7 @@ namespace ArrGen
     void DecreasingSequence(T *array, size_t len, T min, T max);
 
     template <typename T>
-    void RandomSequence(T *array, size_t len, T min, T max);
+     void RandomSequence(T *array, size_t len, T min, T max);
 
     template <typename T>
     void SawtoothSequence(T *array, size_t len, T start, T end, size_t period, size_t offset);
@@ -44,5 +44,6 @@ namespace ArrGen
     extern void (*GenFunarrDouble[])(double *, size_t, double, double);
 
     extern std::string GenFunNames[];
+
 }
 #endif

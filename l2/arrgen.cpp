@@ -71,7 +71,7 @@ namespace ArrGen
             array[i] = distribution(generator);
         }
     }
-
+    
     template <typename T>
     void SawtoothSequence(T * array, size_t len, T start, T end, size_t period, size_t offset)
     {
