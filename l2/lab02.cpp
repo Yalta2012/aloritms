@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include "arrgen.h"
 #include <cstdio>
-#include <concepts>
+#include <chrono>
+#include <fstream>
 
 template <typename T>
 bool IsSorted(int (*Compare)(T, T), T *array, size_t n)
@@ -44,7 +45,7 @@ size_t ShellSort(int (*Compare)(T, T), T *array, size_t n)
         {
             T temp = array[i];
             size_t j = i;
-            for (; j >= h && array[j - h] > temp; j -= h)
+            for (; j >= h && Compare(array[j-h],temp) < 0; j -= h)
             {
                 CompTimes++;
                 array[j] = array[j - h];
@@ -102,7 +103,7 @@ void RadixSortLSD1(unsigned *array, size_t n, int power)
             break;
     for (unsigned int b = 0; b <= hight; b++)
     {
-        mask = (counter_size - 2) << (b*bits);
+        mask = (counter_size - 2) << (b * bits);
         for (int i = 0; i < counter_size; i++)
             counter[i] = 0;
 
@@ -121,7 +122,6 @@ void RadixSortLSD1(unsigned *array, size_t n, int power)
 
     free(buf_array);
 }
-
 
 template <typename T>
 size_t SelectionSort(int (*Compare)(T, T), T *array, size_t n)
@@ -152,18 +152,7 @@ int CompFunc(int a, int b)
 {
     return b - a;
 }
-int CompFunc(char a, char b)
-{
-    return b - a;
-}
-int CompFunc(size_t a, size_t b)
-{
-    if (a > b)
-        return -1;
-    if (a == b)
-        return 0;
-    return 1;
-}
+
 int CompFunc(unsigned int a, unsigned int b)
 {
     if (a > b)
@@ -172,38 +161,62 @@ int CompFunc(unsigned int a, unsigned int b)
         return 0;
     return 1;
 }
-int CompFunc(double a, double b)
-{
-    if (a > b)
-        return -1;
-    if (a == b)
-        return 0;
-    return 1;
-}
+
+void (*GenFunArr[])(unsigned *, size_t, unsigned, unsigned) = {ArrGen::IncreasingSequence, ArrGen::DecreasingSequence, ArrGen::RandomSequence, ArrGen::StepSequence};
+std::string GenFunNames[]{"IncreasingSequence", "DecreasingSequence", "RandomSequence", "StepSequence"};
 
 using namespace std;
+using namespace std::chrono;
 
 int main()
 
 {
-    size_t len = 6;
-    unsigned int a[len];
-    // ArrGen::RandomSequence<char>(a, len, 0, 10);
-    ArrGen::RandomSequence<unsigned int>(a, len, 0, 21412412);
-    cout << "Generation Done" << endl;
-    PrintArray(a, len);
-    PrintBin(a, len);
-    RadixSortLSD1(a, len, 2);
-    PrintArray(a, len);
-    PrintBin(a, len);
-    if (IsSorted<unsigned int>(CompFunc, a, len))
+    ofstream outstream("out2.txt");
+    outstream << "Sort Name | Sequence | Size | Comparations | Time (mics) | Status\n";
+    auto begin = steady_clock::now();
+    auto end = steady_clock::now();
+    size_t count;
+
+    unsigned *arr;
+
+    int c = pow(10,3);
+    for (int i = 5; i <= 50; i += 5)
     {
-        cout << "DONE" << endl;
+        unsigned *arr = (unsigned *)malloc(sizeof(unsigned) * i * pow(10, 3));
+        for (int j = 0; j < 4; j++)
+        {
+            arr = (unsigned *)malloc(sizeof(unsigned) * i * c);
+            GenFunArr[j](arr, i * pow(10, 3), 0, 4294967295);
+            begin = steady_clock::now();
+            count = ShellSort(CompFunc, arr, i * c);
+            end = steady_clock::now();
+            outstream << "ShellSort" << " " << GenFunNames[j] << " " << i << "*10^3" << " " << count << " " << duration_cast<microseconds>(end - begin).count() << "mics" << " " << (IsSorted(CompFunc, arr, i * c) ? "SUCCSES" : "FAIL") << endl;
+            free(arr);
+
+            arr = (unsigned *)malloc(sizeof(unsigned) * i * c);
+            GenFunArr[j](arr, i * pow(10, 3), 0, 4294967295);
+            begin = steady_clock::now();
+            count = SelectionSort(CompFunc, arr, i * c);
+            end = steady_clock::now();
+            outstream << "SelectionSort" << " " << GenFunNames[j] << " " << i << "*10^3" << " " << count << " " << duration_cast<microseconds>(end - begin).count() << "mics" << " " << (IsSorted(CompFunc, arr, i * c) ? "SUCCSES" : "FAIL") << endl;
+            free(arr);
+
+            for (int k = 0; k <= 3; k++)
+            {
+
+                arr = (unsigned *)malloc(sizeof(unsigned) * i * c);
+                GenFunArr[j](arr, i * pow(10, 3), 0, 4294967295);
+                begin = steady_clock::now();
+                RadixSortLSD1(arr, i * c, k);
+                end = steady_clock::now();
+                count = 0;
+                outstream << "RadixSort[" << (1 << k) << "]" << " " << GenFunNames[j] << " " << i << "*10^3" << " " << count << " " << duration_cast<microseconds>(end - begin).count() << "mics" << " " << (IsSorted(CompFunc, arr, i * c) ? "SUCCSES" : "FAIL") << endl;
+                free(arr);
+            }
+        }
     }
-    else
-    {
-        cout << "FAIL" << endl;
-    }
+
+    outstream.close();
 }
 
 #include "arrgen.cpp"

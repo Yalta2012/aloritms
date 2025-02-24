@@ -3,10 +3,7 @@
 
 namespace ArrGen
 {
-    void (*GenFunArrInt[])(int *, size_t, int, int) = {IncreasingSequence, DecreasingSequence, RandomSequence, SawtoothSequence, SinSequence, StepSequence, QuasiOrderedSequence};
-    void (*GenFunarrDouble[])(double *, size_t, double, double) = {IncreasingSequence, DecreasingSequence, RandomSequence, SawtoothSequence, SinSequence, StepSequence, QuasiOrderedSequence};
 
-    std::string GenFunNames[]{"IncreasingSequence", "DecreasingSequence", "RandomSequence", "SawtoothSequence", "SinSequence", "StepSequence", "QuasiOrderedSequence"};
 
     template <typename T>
     void IncreasingSequence(T * array, size_t len, T min, T max)
