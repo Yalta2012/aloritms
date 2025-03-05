@@ -1,0 +1,11 @@
+Search | Len | Compares | Status
+LineSearch 2000 979 -
+LineSearch 4000 1973 -
+LineSearch 6000 3058 -
+LineSearch 8000 4072 -
+LineSearch 10000 5041 -
+LineSearch 12000 6106 -
+LineSearch 14000 6813 -
+LineSearch 16000 7866 -
+LineSearch 18000 9185 -
+LineSearch 20000 9921 -
