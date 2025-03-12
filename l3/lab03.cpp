@@ -181,10 +181,7 @@ using namespace std;
 using namespace ArrGen;
 using namespace std::chrono;
 
-int Comp(int a, int b)
-{
-	return b - a;
-}
+
 int main()
 {
 	srand(time(0));
