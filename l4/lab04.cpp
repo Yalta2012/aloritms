@@ -43,27 +43,41 @@ int max(int a, int b)
 {
 	return a > b ? a : b;
 }
+
+// void Prefics(int * Next, )
+
+// {
+// 	int j, i;
+// 	for(Next[0] = j = -1, i = 1; i < M; i++) {
+// //Префикс-функция (индексы)
+// for( ; j > -1 && P[j+1] != P[i]; j = Next[j]);
+// if (P[j+1] == P[i]) j++;
+// Next[i] = j;
+// 	}
+// }
 char *BoyerMooreStringSearch(char *string, int n, char *substring, int m)
 {
 	char *res = nullptr;
-	auto start = steady_clock::now();
-	auto end = steady_clock::now();
-	start = steady_clock::now();
 	int char_offset[256];
-	
+	int suffix_offset[m];
+	int Next0[m];
+	int Next1[m];
+
 	for (int i = 0; i < 256; char_offset[i++] = -1)
 		;
-
-	int suffix_offset[m];
-	for (int i = 0; i < m; i++)
-		suffix_offset[i] = m;
-
-	int count = 0;
 
 	for (int i = 0; i < m; i++)
 	{
 		char_offset[substring[i]] = i;
 	}
+
+
+	for (int i = 0; i < m; i++)
+		suffix_offset[i] = m;
+
+	int count = 0;
+
+
 
 	for (int i = 0; i <= n - m && res == nullptr;)
 	{
