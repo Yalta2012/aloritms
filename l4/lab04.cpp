@@ -44,40 +44,52 @@ int max(int a, int b)
 	return a > b ? a : b;
 }
 
-// void Prefics(int * Next, )
+void Prefics(int *Next, char *substring, int m)
+{
+	int j, i;
+	for (Next[0] = j = -1, i = 1; i < m; i++)
+	{
+		// Префикс-функция (индексы)
+		for (; j > -1 && substring[j + 1] != substring[i]; j = Next[j])
+			;
+		if (substring[j + 1] == substring[i])
+			j++;
+		Next[i] = j;
+	}
+}
 
-// {
-// 	int j, i;
-// 	for(Next[0] = j = -1, i = 1; i < M; i++) {
-// //Префикс-функция (индексы)
-// for( ; j > -1 && P[j+1] != P[i]; j = Next[j]);
-// if (P[j+1] == P[i]) j++;
-// Next[i] = j;
-// 	}
-// }
 char *BoyerMooreStringSearch(char *string, int n, char *substring, int m)
 {
 	char *res = nullptr;
-	int char_offset[256];
-	int suffix_offset[m];
+	int char_offset[256]; // LO
+	int suffix_offset[m]; // GS
 	int Next0[m];
 	int Next1[m];
+	char substring_buffer[m]; // P1
 
 	for (int i = 0; i < 256; char_offset[i++] = -1)
 		;
 
 	for (int i = 0; i < m; i++)
-	{
 		char_offset[substring[i]] = i;
-	}
 
+	Prefics(Next0, substring, m);
 
 	for (int i = 0; i < m; i++)
-		suffix_offset[i] = m;
+		substring_buffer[m - 1 - i] = substring[i];
 
+	Prefics(Next1, substring_buffer, m);
+
+	for (int i = 0; i < m; i++)
+		suffix_offset[i] = m - Next0[m - 1];
+
+	for (int i = 0; i < m; i++)
+	{
+		int j = m - 1 - Next1[i];
+		if (suffix_offset[j] > i + 1 - Next1[i])
+			suffix_offset[j] = i + 1 - Next1[i];
+	}
 	int count = 0;
-
-
 
 	for (int i = 0; i <= n - m && res == nullptr;)
 	{
@@ -88,7 +100,9 @@ char *BoyerMooreStringSearch(char *string, int n, char *substring, int m)
 			if (string[i + j] != substring[j])
 			{
 				count++;
-				i += ((j - (char_offset[string[i + j]]) > 0) ? (j - char_offset[string[i + j]]) : 1);
+				int a =  max((j-char_offset[string[i + j]]), suffix_offset[j]);
+				i += max((j-char_offset[string[i + j]]), suffix_offset[j]);
+				// cout<<a<<endl;
 				break;
 			}
 		}
@@ -97,6 +111,7 @@ char *BoyerMooreStringSearch(char *string, int n, char *substring, int m)
 	}
 	return res;
 }
+
 
 int main()
 {
@@ -157,6 +172,11 @@ int main()
 			fun_time = duration_cast<nanoseconds>(end - start).count();
 
 			log << i * 1000 << " " << fun_time << " " << str_time << " " << str << " " << (fun_res == str_res ? "SUCC" : "FAIL") << endl;
+			if (fun_res != str_res) {
+				cout<<"FAIL\n";
+				cout<<text<<endl<<str<<endl;
+				exit(0);
+			}
 			if (str_res == nullptr)
 			{
 				fun_time_fail += fun_time;
@@ -176,7 +196,6 @@ int main()
 		free(text);
 	}
 
-	
 	// free(text);
 	output_TY.close();
 	output_TN.close();
