@@ -31,9 +31,6 @@ char *LasySearch(char *string, int n, char *substring, int m) {
 
 int max(int a, int b) { return a > b ? a : b; }
 
-
-
-
 bool IsPrefix(char *string, int m, int p) {
   int j = 0;
   for (int i = p; i >= -1; i--) {
@@ -43,9 +40,11 @@ bool IsPrefix(char *string, int m, int p) {
   return true;
 }
 
-int SuffixLen(char * string, int m, int p){
+int SuffixLen(char *string, int m, int p) {
   int result = 0;
-  for(int i=p,j=m-1; i>=0 && string[i]==string[j]; result++, i--, j--);
+  for (int i = p, j = m - 1; i >= 0 && string[i] == string[j];
+       result++, i--, j--)
+    ;
   return result;
 }
 
@@ -55,40 +54,40 @@ char *BoyerMooreStringSearch(char *string, int n, char *substring, int m) {
   int suffix_offset[m]; // GS
   int count = 0;
 
-  for (int i = 0; i< 256;i++){
+  for (int i = 0; i < 256; i++) {
     char_offset[i] = m;
   }
 
-  for (int i = 0; i<m-1; i++){
+  for (int i = 0; i < m - 1; i++) {
     char_offset[substring[i]] = m - 1 - i;
   }
   /////////////////////////////////////
   int prefix_pos = m;
-  
-  for (int i = m-1; i>=0; i--){
-    if(IsPrefix(substring, m,i+1)){
-      prefix_pos = i+1;
+
+  for (int i = m - 1; i >= 0; i--) {
+    if (IsPrefix(substring, m, i + 1)) {
+      prefix_pos = i + 1;
     }
-    suffix_offset[m-1-i] = prefix_pos - i + m - 1;
+    suffix_offset[m - 1 - i] = prefix_pos - i + m - 1;
   }
 
-  for(int i = 0; i< m-1 ; i++){
+  for (int i = 0; i < m - 1; i++) {
     int s = SuffixLen(substring, m, i);
-    suffix_offset[s] = m - 1 -i +s;
-    cout<<"("<<suffix_offset[s]<<" " << m - 1 -i +s<<")";
+    suffix_offset[s] = m - 1 - i + s;
+    cout << "(" << suffix_offset[s] << " " << m - 1 - i + s << ")";
   }
-  
+
   // for(int i: suffix_offset) cout<<i<< " ";
   // cout<<endl;
 
-  for (int i = m-1; res==nullptr && i<n; i++){
-    int j = m-1;
-    for(; res==nullptr && substring[j] == string[i]; i--, j--){  
-      if (j==0){
-        res = string+i;
+  for (int i = m - 1; res == nullptr && i < n; i++) {
+    int j = m - 1;
+    for (; res == nullptr && substring[j] == string[i]; i--, j--) {
+      if (j == 0) {
+        res = string + i;
       }
-      i+= max(suffix_offset[m-1-j], char_offset[string[i]]);
-      cout<<i<<endl;
+      i += max(suffix_offset[m - 1 - j], char_offset[string[i]]);
+      cout << i << endl;
     }
   }
   return res;
