@@ -21,7 +21,9 @@ t->Insert(32);
 t->Insert(60);
 
   cout << t->NumberOfNodes() << endl;
-  t->Print();
+  t->FPrint();
+  cout<<endl;
+  t->LNRTravel();
   delete t;
   return 0;
 }

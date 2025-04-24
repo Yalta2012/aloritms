@@ -5,12 +5,12 @@
 using namespace std;
 
 template <typename T>
-Node<T>::Node(T data, Node<T> *left, Node<T> *right) : data(data), left(left), right(right)
+Node<T>::Node(T data, Node<T> *left, Node<T> *right, Node<T>*parent) : data(data), left(left), right(right),parent(parent)
 {
 }
 
 template <typename T>
-Node<T>::Node(T data) : Node<T>(data, nullptr, nullptr)
+Node<T>::Node(T data) : Node<T>(data, nullptr, nullptr, nullptr)
 {
 }
 
@@ -36,6 +36,7 @@ void Node<T>::Add(Node<T> *new_node)
     else
       right->Add(new_node);
   }
+  new_node->parent=this;
 }
 
 template <typename T>
@@ -71,7 +72,7 @@ int Node<T>::Higth()
 }
 
 template <typename T>
-void Node<T>::Print(int layer)
+void Node<T>::FPrint(int layer)
 {
 
   if(nullptr == right)
@@ -81,7 +82,7 @@ void Node<T>::Print(int layer)
   if (nullptr != right)
   {
     cout << "---";
-    right->Print(layer + 1);
+    right->FPrint(layer + 1);
   }
   if (nullptr != left)
   {
@@ -96,8 +97,25 @@ void Node<T>::Print(int layer)
       }
     }
     cout << "`-------";
-    left->Print(layer + 1);
+    left->FPrint(layer + 1);
   }
+}
+
+template <typename T>
+void Node<T>::Print()
+{
+if(nullptr != left)
+  left->Print();
+  cout<<data<<" ";
+if(nullptr!=right)
+  right->Print();
+}
+
+template <typename T> void
+BinaryTree<T>::LNRTravel(){
+  if(nullptr == root) return;
+  root->Print();
+
 }
 
 template <typename T>
@@ -130,11 +148,11 @@ void BinaryTree<T>::Insert(T new_element)
 }
 
 template <typename T>
-void BinaryTree<T>::Print()
+void BinaryTree<T>::FPrint()
 {
   if (nullptr != root)
   {
-    root->Print(0);
+    root->FPrint(0);
   }
   else
   {
@@ -223,4 +241,14 @@ Node<T> * Node<T>::FindRightMin()
   else{
     return nullptr;
   }
+}
+
+template <typename T>
+void BinaryTree<T>::Delete(Node<T>*node){
+
+}
+
+template <typename T>
+void BinaryTree<T>:: Delete(T element){
+
 }
