@@ -9,7 +9,7 @@ all: comp run
 val: comp 
 	valgrind --leak-check=full --track-origins=yes $(TARG)
 style:
-	clang-format -i *.cpp *.h
+	clang-format -i *.cpp *.h *.tpp
 
 run:
 	$(TARG)

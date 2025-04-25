@@ -3,34 +3,24 @@
 using namespace std;
 
 template <typename T>
-Node<T>::Node(T data, Node<T> *left, Node<T> *right) : data(data), left(left), right(right), parent(nullptr)
-{
-}
+Node<T>::Node(T data, Node<T> *left, Node<T> *right)
+    : data(data), left(left), right(right), parent(nullptr) {}
 
-template <typename T>
-Node<T>::Node(T data) : Node<T>(data, nullptr, nullptr)
-{
-}
+template <typename T> Node<T>::Node(T data) : Node<T>(data, nullptr, nullptr) {}
 
-template <typename T>
-Node<T>::~Node() {}
+template <typename T> Node<T>::~Node() {}
 
-template <typename T>
-void Node<T>::Add(Node<T> *new_node)
-{
+template <typename T> void Node<T>::Add(Node<T> *new_node) {
   if (nullptr == new_node)
     return;
   new_node->parent = this;
 
-  if (new_node->data < data)
-  {
+  if (new_node->data < data) {
     if (nullptr == left)
       left = new_node;
     else
       left->Add(new_node);
-  }
-  else
-  {
+  } else {
     if (nullptr == right)
       right = new_node;
     else
@@ -38,60 +28,45 @@ void Node<T>::Add(Node<T> *new_node)
   }
 }
 
-template <typename T>
-void Node<T>::Clear()
-{
-  if (nullptr != left)
-  {
+template <typename T> void Node<T>::Clear() {
+  if (nullptr != left) {
     left->Clear();
     delete (left);
     left = nullptr;
   }
-  if (nullptr != right)
-  {
+  if (nullptr != right) {
     right->Clear();
     delete (right);
     right = nullptr;
   }
 }
 
-template <typename T>
-int Node<T>::Higth()
-{
+template <typename T> int Node<T>::Higth() {
   int left_hight = 1, right_hight = 1;
-  if (nullptr != left)
-  {
+  if (nullptr != left) {
     left_hight += left->Higth();
   }
-  if (nullptr != right)
-  {
+  if (nullptr != right) {
     right_hight += right->Higth();
   }
   return max(left_hight, right_hight);
 }
 
-template <typename T>
-void Node<T>::FPrint(int layer)
-{
+template <typename T> void Node<T>::FPrint(int layer) {
 
   if (nullptr == right)
     cout << data;
   else
     cout << std::format("{:-<5}", data);
-  if (nullptr != right)
-  {
+  if (nullptr != right) {
     cout << "---";
     right->FPrint(layer + 1);
   }
-  if (nullptr != left)
-  {
+  if (nullptr != left) {
     cout << endl;
-    for (int i = 0; i < layer; i++)
-    {
+    for (int i = 0; i < layer; i++) {
 
-      for (int j = 0; j < 8; j++)
-      {
-        // if (j==layer) cout<<"|";
+      for (int j = 0; j < 8; j++) {
         cout << " ";
       }
     }
@@ -100,9 +75,7 @@ void Node<T>::FPrint(int layer)
   }
 }
 
-template <typename T>
-void Node<T>::Print()
-{
+template <typename T> void Node<T>::Print() {
   if (nullptr != left)
     left->Print();
   cout << data << " ";
@@ -110,135 +83,91 @@ void Node<T>::Print()
     right->Print();
 }
 
-template <typename T>
-void BinaryTree<T>::LNRTravel()
-{
+template <typename T> void BinaryTree<T>::LNRTravel() {
   if (nullptr == root)
     return;
   root->Print();
 }
 
-template <typename T>
-BinaryTree<T>::BinaryTree(Node<T> *root) : root(root), deep(0)
-{
-}
+template <typename T> BinaryTree<T>::BinaryTree(Node<T> *root) : root(root) {}
 
-template <typename T>
-BinaryTree<T>::BinaryTree() : root(nullptr), deep(0) {}
+template <typename T> BinaryTree<T>::BinaryTree() : root(nullptr) {}
 
-template <typename T>
-BinaryTree<T>::~BinaryTree()
-{
-  Clear();
-}
+template <typename T> BinaryTree<T>::~BinaryTree() { Clear(); }
 
-template <typename T>
-void BinaryTree<T>::Insert(Node<T> *new_node)
-{
-  if (nullptr == root)
-  {
+template <typename T> void BinaryTree<T>::Insert(Node<T> *new_node) {
+  if (nullptr == root) {
     root = new_node;
     root->parent = nullptr;
-  }
-  else
+  } else
     root->Add(new_node);
 }
 
-template <typename T>
-void BinaryTree<T>::Insert(T new_element)
-{
+template <typename T> void BinaryTree<T>::Insert(T new_element) {
   Insert(new Node<T>(new_element));
 }
 
-template <typename T>
-void BinaryTree<T>::FPrint()
-{
-  if (nullptr != root)
-  {
+template <typename T> void BinaryTree<T>::FPrint() {
+  if (nullptr != root) {
     root->FPrint(0);
-  }
-  else
-  {
+  } else {
     cout << "Empty tree" << endl;
   }
 }
 
-template <typename T>
-void BinaryTree<T>::Clear()
-{
-  if (nullptr != root)
-  {
+template <typename T> void BinaryTree<T>::Clear() {
+  if (nullptr != root) {
     root->Clear();
     delete root;
     root = nullptr;
   }
 }
 
-template <typename T>
-int BinaryTree<T>::Higth()
-{
+template <typename T> int BinaryTree<T>::Higth() {
   int result = 0;
-  if (nullptr != root)
-  {
+  if (nullptr != root) {
     result += root->Higth();
   }
   return result;
 }
-template <typename T>
-Node<T> *Node<T>::Find(T element)
-{
+template <typename T> Node<T> *Node<T>::Find(T element) {
   Node<T> *result = nullptr;
   if (data == element)
     result = this;
-  else if (element < data)
-  {
+  else if (element < data) {
     if (nullptr != left)
       result = left->Find(element);
-  }
-  else if (nullptr != right)
+  } else if (nullptr != right)
     result = right->Find(element);
   return result;
 }
 
-template <typename T>
-Node<T> *BinaryTree<T>::Find(T element)
-{
+template <typename T> Node<T> *BinaryTree<T>::Find(T element) {
   if (nullptr != root)
     return root->Find(element);
   else
     return nullptr;
 }
 
-template <typename T>
-int Node<T>::NumberOfChildren()
-{
+template <typename T> int Node<T>::NumberOfChildren() {
   int result = 0;
-
-  if (nullptr != left)
-  {
+  if (nullptr != left) {
     result += left->NumberOfChildren() + 1;
   }
-  if (nullptr != right)
-  {
+  if (nullptr != right) {
     result += right->NumberOfChildren() + 1;
   }
   return result;
 }
 
-template <typename T>
-int BinaryTree<T>::NumberOfNodes()
-{
-  if (nullptr != root)
-  {
+template <typename T> int BinaryTree<T>::NumberOfNodes() {
+  if (nullptr != root) {
     return root->NumberOfChildren() + 1;
-  }
-  else
+  } else
     return 0;
 }
 
-template <typename T>
-Node<T> *Node<T>::FindRightMin()
-{
+template <typename T> Node<T> *Node<T>::FindRightMin() {
   Node<T> *node_ptr = right;
 
   while (node_ptr->left)
@@ -246,11 +175,8 @@ Node<T> *Node<T>::FindRightMin()
   return node_ptr;
 }
 
-template <typename T>
-void BinaryTree<T>::Delete(Node<T> *node)
-{
-  if (nullptr != node->left && nullptr != node->right)
-  {
+template <typename T> void BinaryTree<T>::Delete(Node<T> *node) {
+  if (nullptr != node->left && nullptr != node->right) {
     Node<T> *right_min = node->FindRightMin();
 
     right_min->parent = node->parent;
@@ -266,9 +192,7 @@ void BinaryTree<T>::Delete(Node<T> *node)
     right_min->left = node->left;
     if (nullptr != right_min->left)
       right_min->left->parent = right_min;
-  }
-  else
-  {
+  } else {
     Node<T> *child = nullptr;
     if (nullptr != node->left)
       child = node->left;
@@ -278,13 +202,11 @@ void BinaryTree<T>::Delete(Node<T> *node)
     if (nullptr != child)
       child->parent = node->parent;
 
-    if (nullptr != node->parent)
-    {
+    if (nullptr != node->parent) {
 
       if (node->parent->left == node)
         node->parent->left = child;
-      else
-      {
+      else {
         node->parent->right = child;
       }
     }
@@ -293,17 +215,13 @@ void BinaryTree<T>::Delete(Node<T> *node)
   delete (node);
 }
 
-template <typename T>
-void BinaryTree<T>::Delete(T element)
-{
+template <typename T> void BinaryTree<T>::Delete(T element) {
   Node<T> *node_to_delete = Find(element);
   if (nullptr != node_to_delete)
     Delete(node_to_delete);
 }
 
-template <typename T>
-void BinaryTree<T>::LeftRotate(Node<T> *node)
-{
+template <typename T> void BinaryTree<T>::LeftRotate(Node<T> *node) {
 
   if (nullptr == node->right)
     return;
@@ -313,12 +231,9 @@ void BinaryTree<T>::LeftRotate(Node<T> *node)
   Node<T> *mid = right_ptr->left;
   Node<T> *temp;
 
-  if (nullptr == parent_ptr)
-  {
+  if (nullptr == parent_ptr) {
     root = right_ptr;
-  }
-  else
-  {
+  } else {
     right_ptr->parent = parent_ptr;
     if (parent_ptr->right == node)
       parent_ptr->right = right_ptr;
@@ -336,9 +251,7 @@ void BinaryTree<T>::LeftRotate(Node<T> *node)
   node->parent = right_ptr;
 }
 
-template <typename T>
-void BinaryTree<T>::RightRotate(Node<T> *node)
-{
+template <typename T> void BinaryTree<T>::RightRotate(Node<T> *node) {
   if (nullptr == node->left)
     return;
 
@@ -347,12 +260,9 @@ void BinaryTree<T>::RightRotate(Node<T> *node)
   Node<T> *mid = left_ptr->right;
   Node<T> *temp;
 
-  if (nullptr == parent_ptr)
-  {
+  if (nullptr == parent_ptr) {
     root = left_ptr;
-  }
-  else
-  {
+  } else {
     left_ptr->parent = parent_ptr;
     if (parent_ptr->left == node)
       parent_ptr->left = left_ptr;
@@ -370,41 +280,31 @@ void BinaryTree<T>::RightRotate(Node<T> *node)
   node->parent = left_ptr;
 }
 
-template <typename T>
-void BinaryTree<T>::InsertRoot(Node<T> *new_node)
-{
-  if (nullptr == root)
-  {
+template <typename T> void BinaryTree<T>::InsertRoot(Node<T> *new_node) {
+  if (nullptr == root) {
     root = new_node;
     root->parent = nullptr;
-  }
-  else
+  } else
     root->AddRoot(new_node, this);
 }
 
-template <typename T>
-void BinaryTree<T>::InsertRoot(T new_element)
-{
+template <typename T> void BinaryTree<T>::InsertRoot(T new_element) {
   InsertRoot(new Node<T>(new_element));
 }
 
 template <typename T>
-void Node<T>::AddRoot(Node<T> *new_node, BinaryTree<T> *tree)
-{
+void Node<T>::AddRoot(Node<T> *new_node, BinaryTree<T> *tree) {
   if (nullptr == new_node)
     return;
   new_node->parent = this;
 
-  if (new_node->data < data)
-  {
+  if (new_node->data < data) {
     if (nullptr == left)
       left = new_node;
     else
       left->AddRoot(new_node, tree);
     tree->RightRotate(new_node->parent);
-  }
-  else
-  {
+  } else {
     if (nullptr == right)
       right = new_node;
     else
@@ -414,43 +314,36 @@ void Node<T>::AddRoot(Node<T> *new_node, BinaryTree<T> *tree)
 }
 
 template <typename T>
-void Node<T>::AddRandom(Node<T> *new_node, BinaryTree<T> *tree)
-{
-  if (nullptr == new_node)
+void Node<T>::AddRandom(Node<T> *new_node, BinaryTree<T> *tree) {
+  if (nullptr == new_node || nullptr == tree)
     return;
-  int a = this->NumberOfChildren()+1;
-  // cout << a << " " << NumberOfChildren() + 1 << endl;
-  if (a == 0)
-  {
+
+  if (0 == rand() % (NumberOfChildren() + 1)) {
     AddRoot(new_node, tree);
-  }
-  else
-  {
-    if (new_node->data < data)
-    {
-      left->AddRandom(new_node, tree);
-    }
-    else
-    {
-      right->AddRandom(new_node, tree);
+  } else {
+    if (new_node->data < data) {
+      if (nullptr == left)
+        Add(new_node);
+      else
+        left->AddRandom(new_node, tree);
+    } else {
+      if (nullptr == right)
+        Add(new_node);
+      else
+        right->AddRandom(new_node, tree);
     }
   }
 }
 
-template <typename T>
-void BinaryTree<T>::InsertRandom(Node<T> *new_node)
-{
-  if (nullptr == root)
-  {
+template <typename T> void BinaryTree<T>::InsertRandom(Node<T> *new_node) {
+  if (nullptr == root) {
     root = new_node;
     root->parent = nullptr;
-  }
-  else
+  } else {
     root->AddRandom(new_node, this);
+  }
 }
 
-template <typename T>
-void BinaryTree<T>::InsertRandom(T new_element)
-{
+template <typename T> void BinaryTree<T>::InsertRandom(T new_element) {
   InsertRandom(new Node<T>(new_element));
 }

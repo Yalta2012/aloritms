@@ -1,77 +1,70 @@
 #include "binarytree.h"
+#include <ctime>
+#include <fstream>
 #include <iostream>
 #include <vector>
-#include <ctime>
 using namespace std;
 
 // class Node;
 // class BinaryTree;
 
-template <>
-inline int BinaryTree<int>::Fun()
-{
-  return 0;
+template <> inline int Node<int>::Fun() {
+  int result = 0;
+  if (nullptr != left)
+    result += left->Fun();
+  if (nullptr != right)
+    result += right->Fun();
+  if (data % 2 == 1 && nullptr != left && nullptr != right)
+    result += 1;
+  return result;
 }
 
-int main()
-{
+template <> inline int BinaryTree<int>::Fun() {
+  if (nullptr == root)
+    return 0;
+  return root->Fun();
+}
+
+int main() {
   srand(time(0));
-  auto t = new BinaryTree<int>();
-  t->InsertRandom(32);
-  t->FPrint();
-  cout<<endl<< endl;
-  t->InsertRandom(16);
-  t->FPrint();
-  cout<<endl<< endl;
-  t->InsertRandom(5);
- 
 
-  // t->InsertRandom(8);
-  // t->InsertRandom(5);
-  // t->InsertRandom(31);
-  // t->InsertRandom(19);
-  // t->InsertRandom(17);
-  // t->InsertRandom(5);
-  // t->InsertRandom(5);
-  // t->InsertRandom(5);
+  ofstream outs1("standart_out.txt");
+  ofstream outs2("random_out.txt");
+  ofstream outs3("st_line_out.txt");
+  ofstream outs4("rnd_line_out.txt");
+  ofstream outs5("fun.txt");
 
-  // t->InsertRoot(32);
-  // t->InsertRoot(16);
-  // t->InsertRoot(5);
-  // t->InsertRoot(8);
-  // t->InsertRoot(5);
-  // t->InsertRoot(31);
-  // t->InsertRoot(19);
-  // t->InsertRoot(17);
-  // t->InsertRoot(5);
-  // t->InsertRoot(5);
-  // t->InsertRoot(5);
+  auto tree = new BinaryTree<int>();
 
-  t->FPrint();
-  cout<<endl<< endl;
+  for (int i = 0; i < 5000; i++) {
+    tree->Insert(random() % 10000);
+    outs1 << i + 1 << "|" << tree->Higth() << endl;
+  }
+  delete tree;
 
-  // t->RightRotate(t->Find(32));
-  // t->FPrint();
-  // cout<<endl<< endl;
-  
-  // t->RightRotate(t->Find(32));
-  // t->FPrint();
-  // cout<<endl<< endl;
-  
-  // t->LeftRotate(t->Find(16));
-  // t->FPrint();
-  // cout << endl<< endl;
+  tree = new BinaryTree<int>();
+  for (int i = 0; i < 5000; i++) {
+    tree->InsertRandom(random() % 10000);
+    outs2 << i + 1 << "|" << tree->Higth() << endl;
+  }
+  delete tree;
 
+  tree = new BinaryTree<int>();
+  for (int i = 0; i < 5000; i++) {
+    tree->Insert(i);
+    outs3 << i + 1 << "|" << tree->Higth() << endl;
+  }
+  delete tree;
 
-  // auto a = t->Find(20);
-  // cout<<a->right->data<<endl;
-  t->LNRTravel();
+  tree = new BinaryTree<int>();
+  for (int i = 0; i < 5000; i++) {
+    tree->InsertRandom(i);
+    outs4 << i + 1 << "|" << tree->Higth() << endl;
+  }
 
-  cout<<endl;
-  // cout<<endl<< endl;
-  // cout<<rand() % (t->Find(17)->NumberOfChildren()+1) ;
-  // a=a->FindRightMin();
-  // if(a) cout<< a->data<<endl;
-  delete t;
+  tree->FPrint();
+  cout << endl << endl << tree->Fun();
+  delete tree;
+
   return 0;
 }

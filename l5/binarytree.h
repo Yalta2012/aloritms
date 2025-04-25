@@ -1,18 +1,16 @@
 #pragma once
-#include <iostream>
 #include <cstdio>
 #include <format>
+#include <iostream>
 #include <random>
 
-template <typename T>class BinaryTree;
+template <typename T> class BinaryTree;
 
-template <typename T>
-class Node
-{
+template <typename T> class Node {
 
   friend class BinaryTree<T>;
 
-public:
+private:
   T data;
   Node *left;
   Node *right;
@@ -21,24 +19,21 @@ public:
   Node(T data);
   ~Node();
 
-// private:
   void Add(Node<T> *new_node);
   void Clear();
   int Higth();
   void Print();
   void FPrint(int layer);
-  Node<T> * Find(T element);
+  Node<T> *Find(T element);
   int NumberOfChildren();
-  Node<T>*FindRightMin();
-  void AddRoot(Node<T> *new_node, BinaryTree<T>*tree);
+  Node<T> *FindRightMin();
+  void AddRoot(Node<T> *new_node, BinaryTree<T> *tree);
   void AddRandom(Node<T> *new_node, BinaryTree<T> *tree);
+  int Fun();
 };
 
-template <typename T>
-class BinaryTree
-{
+template <typename T> class BinaryTree {
 public:
-  int deep;
   Node<T> *root;
   BinaryTree();
   BinaryTree(Node<T> *);
@@ -48,14 +43,14 @@ public:
   void FPrint();
   void Clear();
   int Higth();
-  Node<T> * Find(T element);
+  Node<T> *Find(T element);
   int NumberOfNodes();
   int Fun();
-  void Delete(Node<T>*node);
+  void Delete(Node<T> *node);
   void Delete(T element);
   void LNRTravel();
-  void LeftRotate(Node<T>*);
-  void RightRotate(Node<T>*);
+  void LeftRotate(Node<T> *);
+  void RightRotate(Node<T> *);
   void InsertRoot(Node<T> *new_node);
   void InsertRoot(T new_element);
   void InsertRandom(Node<T> *new_node);
