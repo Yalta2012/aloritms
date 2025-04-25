@@ -1,21 +1,27 @@
 #pragma once
+#include <iostream>
+#include <cstdio>
+#include <format>
+#include <random>
+
+template <typename T>class BinaryTree;
 
 template <typename T>
 class Node
 {
-  template <typename U>
-  friend class BinaryTree;
+
+  friend class BinaryTree<T>;
 
 public:
   T data;
   Node *left;
   Node *right;
   Node *parent;
-  Node(T data, Node *left, Node *right, Node * parent);
+  Node(T data, Node *left, Node *right);
   Node(T data);
   ~Node();
 
-private:
+// private:
   void Add(Node<T> *new_node);
   void Clear();
   int Higth();
@@ -24,7 +30,8 @@ private:
   Node<T> * Find(T element);
   int NumberOfChildren();
   Node<T>*FindRightMin();
-
+  void AddRoot(Node<T> *new_node, BinaryTree<T>*tree);
+  void AddRandom(Node<T> *new_node, BinaryTree<T> *tree);
 };
 
 template <typename T>
@@ -47,6 +54,12 @@ public:
   void Delete(Node<T>*node);
   void Delete(T element);
   void LNRTravel();
+  void LeftRotate(Node<T>*);
+  void RightRotate(Node<T>*);
+  void InsertRoot(Node<T> *new_node);
+  void InsertRoot(T new_element);
+  void InsertRandom(Node<T> *new_node);
+  void InsertRandom(T new_element);
 };
 
 #include "binarytree.tpp"
