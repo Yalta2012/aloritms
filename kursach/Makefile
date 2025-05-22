@@ -1,5 +1,5 @@
 CC = g++-13
-FLAGS = -g
+FLAGS = -g -std=c++20
 TARGET = ./a.out
 TEST = test.cpp
 SRC = cursach3.cpp
@@ -22,7 +22,7 @@ val: compile
 test-compile:
 	${CC} ${TEST} -o ${TARGET} ${FLAGS}
 
-test: compile-test
+test: test-compile
 	${TARGET}
 
 test-val: test-compile
