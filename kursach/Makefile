@@ -26,3 +26,4 @@ test: test-compile
 	${TARGET}
 
 test-val: test-compile
+	valgrind --leak-check=full --track-origins=yes ${TARGET}
