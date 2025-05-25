@@ -1,7 +1,7 @@
 CC = g++-13
 FLAGS = -g
 TARGET = ./a.out
-FILE = lab07.cpp
+FILE = lab08.cpp
 
 all: compile run
 

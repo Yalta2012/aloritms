@@ -1,15 +1,15 @@
 #include <values.h>
 #include <iostream>
 #include <stdlib.h>
+#include <queue>
+#include <fstream>
 
-
-//---------------------------------------------------------------------------
 struct Item {
 int D;
 Item * Next;
   Item():D(-1),Next(0){}
   Item(int V): D(V),Next(0){}
-};  
+};
 //---------------------------------------------------------------------------
 class Cont {
 protected:
@@ -70,9 +70,24 @@ public:
           Graph   Kruskal(void);
           int     Hamiltonian(int v, int w, int Length, bool * Labelled, Graph & G);
           Graph   HamiltonianPath(int From, int To);
+
+
+          
+
 };
 //---------------------------------------------------------------------------
+class SGraph: public Graph {
+public:
+                  SGraph(int Size):Graph(Size){}
+                  SGraph(const SGraph & G): Graph(G){}
+  virtual void    Random(double Density, double MaxWeight = 1);
+  virtual  int    EdgeCount(void) {return Graph::EdgeCount()/2;};
+  virtual void    AddEdge(int V0, int V1, double Weight = 1);
 
+          static SGraph Merge(Graph * graphs, int size, int n);
+          bool PathExist(int a, int b);
+};
+//---------------------------------------------------------------------------
 class WGraph: public Graph {
 public:
                   WGraph(int Size):Graph(Size){}
@@ -81,7 +96,23 @@ public:
   virtual void    AddEdge(int V0, int V1, double Weight = 1);
 };
 //---------------------------------------------------------------------------
+class OrGraph: public Graph {
+public:
+                  OrGraph(int Size):Graph(Size){}
+                  OrGraph(const OrGraph & G): Graph(G){}
+  virtual void    Random(double Density, double MaxWeight = 1);
+  virtual void    AddEdge(int V0, int V1, double Weight = 1);
+          OrGraph TransClosure(bool PathOrder);
 
+};
+//---------------------------------------------------------------------------
+class OrWGraph: public Graph {
+public:
+                  OrWGraph(int Size):Graph(Size){}
+                  OrWGraph(const OrWGraph & G): Graph(G){}
+  virtual void    Random(double Density, double MaxWeight = 1);
+};
+//---------------------------------------------------------------------------
 struct Deikstra {
 bool   Label;
 double Path;
@@ -367,7 +398,7 @@ if(M.Size() == _Size)
           if (G._m[i][t] < MAXDOUBLE)
             if(G._m[s][t] > G._m[s][i] + G._m[i][t])
                {
-               G._m[s][t] = G._m[s][i] +  G._m[i][t];
+               G._m[s][t] = G._m[s][i] + G._m[i][t];
                M.Set(s, t, M(s, i));
                }
   }
@@ -476,21 +507,162 @@ return G;
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
+void    SGraph::AddEdge(int V0, int V1, double Weight)
+{
+Graph::AddEdge(V0,V1,1);
+Graph::AddEdge(V1,V0,1);
+}
+//---------------------------------------------------------------------------
+void   SGraph::Random(double Density, double MaxWeight)
+{
+if (Density >= 0 && Density <= 1 && MaxWeight >= 0)
+  {
+  for(int i = 0; i < _Size; i++)
+  for(int j = 0; j < _Size; j++)
+    if(i > j)
+      {
+      if(Density >= (double)rand()/RAND_MAX)
+        _m[i][j] = 1.0;
+      else
+        _m[i][j] = MAXDOUBLE;
+      _m[j][i] = _m[i][j];
+      }
+    else
+      continue;
+  }
+}
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void    WGraph::AddEdge(int V0, int V1, double Weight)
 {
 Graph::AddEdge(V0,V1,Weight);
 Graph::AddEdge(V1,V0,Weight);
 }
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void    OrGraph::AddEdge(int V0, int V1, double Weight)
+{
+Graph::AddEdge(V0,V1,1);
+}
+//---------------------------------------------------------------------------
+OrGraph OrGraph::TransClosure(bool PathOrder)
+{
+OrGraph G(*this);
+for(int i = 0; i < _Size; i++)
+  for(int s = 0; s < _Size; s++)
+     if (G._m[s][i] == 1)
+       for(int t = 0; t < _Size; t++)
+         G._m[s][t] = G._m[i][t] == 1 ? 1 : G._m[s][t];
+if(!PathOrder)
+  for(int i = 0; i < _Size; i++)
+    G._m[i][i] = 0;
+return G;
+}
+//---------------------------------------------------------------------------
+void   OrGraph::Random(double Density, double MaxWeight)
+{
+if (Density >= 0 && Density <= 1 && MaxWeight >= 0)
+  {
+  for(int i = 0; i < _Size; i++)
+  for(int j = 0; j < _Size; j++)
+    {
+    if(i == j) continue;
+    if(Density >= (double)rand()/RAND_MAX)
+      _m[i][j] = 1.0;
+    else
+      _m[i][j] = MAXDOUBLE;
+    }
+  }
+}
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void   OrWGraph::Random(double Density, double MaxWeight)
+{
+if (Density >= 0 && Density <= 1 && MaxWeight >= 0)
+  {
+  for(int i = 0; i < _Size; i++)
+  for(int j = 0; j < _Size; j++)
+    {
+    if(i == j) continue;
+    if(Density >= (double)rand()/RAND_MAX)
+      _m[i][j] = MaxWeight*rand()/RAND_MAX;
+    else
+      _m[i][j] = MAXDOUBLE;
+    }
+  }
+}
+#pragma argsused
 
 
 
+bool SGraph::PathExist(int a, int b){
+  if(a<0 || b< 0 || a>= Size() || b>= Size()){
+    return false;
+  }
+  if(a==b) return true;
+  std::queue<int> q;
+  std::vector<bool>v(Size(),false);
+  q.push(a);
+  v[a]=true;
+  while(!q.empty() && q.front()!=b){
+    int p = q.front();
+    for (int i = 0; i<Size(); i++){
+
+      if(operator()(p,i) < MAXDOUBLE && v[i]==false){
+        v[i] = true;
+        q.push(i);
+      }
+    }
+    q.pop();
+  }
+  return (!q.empty() && q.front()==b);
+}
+
+SGraph SGraph::Merge(Graph * graphs, int size, int n){  
+  SGraph result(size);
+  for(int c = 0; c<n; c++){
+    for(int i = 0; i< size; i++){
+      for (int j = i; j< size; j++){
+        if(graphs[c](i,j) < MAXDOUBLE)
+          result.AddEdge(i,j);
+      }
+    }
+  }
+  return result;
+}
 //---------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-
-    WGraph graph (5);
+  try{
+    std::ifstream inStream("input.txt");
+    int a =0;
+    int b = 0;   
+    int size, len;
+    inStream >> size >> len;
+    SGraph graphs[3]{{size},{size},{size}};
     
+    for(int i = 0; i < 3; i++){
+   
+      inStream>>a>>b;
+      while(a!=-1 && b!=-1){
+        graphs[i].AddEdge(a,b);
+        inStream>>a>>b;
+      }
+    }
+    SGraph graph = SGraph::Merge(graphs,size,len);
+    inStream>>a>>b;
+    graph.Print();
+    std::cout<<"Points: "<<a<<" "<<b<<std::endl;
+    if(graph.PathExist(a,b)){
+      std::cout<<"Path is exists"<<std::endl;
+    }
+    else{
+      std::cout<<"Path is not exists"<<std::endl;
+    }
+  }
+  catch(...){
+    std::cerr<<"ERROR!";
+  }
     return 0;
 }
 //---------------------------------------------------------------------------
