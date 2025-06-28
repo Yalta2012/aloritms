@@ -3,22 +3,30 @@
 #include "hashmap.h"
 #include <unordered_map>
 #include <hashtable.h>
+#include <random>
+#include <chrono>
 using namespace std;
 int main()
 {
-    // HashMap<string, int> a;
-    // cout<<"C:"<<a.Contains("abc")<<endl;
-    // a.Put("abc",123);
-    // cout<<"C:"<<a.Contains("abc")<<endl;
+    ofstream f("out.txt");
+    hash_map<string, int> a;
+    auto end = chrono::steady_clock::now();
+    auto begin = chrono::steady_clock::now();
 
-    // a.Print();
+    for (int i = 0; i < 10000; i++)
+    {
+        a.put(to_string(i), i);
+    }
 
-    HashMap<int, int> a;
-    cout << "C:" << a.Contains(0) << endl;
-    a.Put(0, 123);
-    a.Put(5, 123);
+    cout << a.total_buckets() << endl;
+    cout << a.size() << endl;
 
-    cout << "C:" << a.Contains(0) << endl;
+    hash_map<string,int> b;
+    b=a;
 
-    a.Print();
+    b["9999"] = -123;
+    for (auto i : a)
+    {
+        f << i.key() << "|" << i.value() << endl;
+    }
 }

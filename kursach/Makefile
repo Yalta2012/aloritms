@@ -1,7 +1,8 @@
 CC = g++-13
-FLAGS = -g -std=c++20
+FLAGS = -g -std=c++20 -O3
 TARGET = ./a.out
-TEST = test.cpp
+# TEST = test.cpp
+TEST = research.cpp
 SRC = cursach3.cpp
 
 
@@ -15,7 +16,7 @@ run: compile
 	${TARGET}
 
 val: compile
-	valgrind --lecak-check=full
+	valgrind --leak-check=full ${TARGET}
 
 
 
